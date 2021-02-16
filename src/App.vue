@@ -1,10 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -27,52 +23,47 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
+      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
         <span class="mr-2">Latest Release</span>
         <v-icon>mdi-open-in-new</v-icon>
-
       </v-btn>
     </v-app-bar>
 
-    <div>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-      <router-view></router-view>
-    </div>
+    <v-main>
+      <v-container>
+        <router-view></router-view>
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
 <script>
-import path from 'path';
-import fs from 'fs';
-import store from './store';
-import HelloWorld from './components/HelloWorld';
+import path from "path";
+import fs from "fs";
+import store from "./store";
+import HelloWorld from "./components/HelloWorld";
 
 export default {
-  name: 'App',
+  name: "App",
 
   components: {
-    HelloWorld,
+    HelloWorld
   },
   created() {
     this.getSetting();
-
   },
-  mounted() {
-
-  },
+  mounted() {},
   data: () => ({
-    setting: null,
+    setting: null
   }),
   methods: {
     getSetting() {
-      this.setting = JSON.parse(fs.readFileSync(path.join(__static, '/setting.json')), 'utf8');
+      this.setting = JSON.parse(
+        fs.readFileSync(path.join(__static, "/setting.json")),
+        "utf8"
+      );
       // store.commit('setExcelPath', this.setting.excelPath);
-    },
-  },
+    }
+  }
 };
 </script>

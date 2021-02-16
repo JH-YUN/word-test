@@ -17,6 +17,27 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <v-card v-if="!isShowPathDialog" class="m-5">
+        <v-card-title>테스트할 단어 모음을 선택해주세요.</v-card-title>
+        <v-simple-table>
+          <thead>
+            <tr>
+              <th>선택</th>
+              <th>파일명</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(excel, index) in wordExcelList" :key="index" @click="addWordExcel(excel)">
+                <td><input type="checkbox" :value="excel" v-model="selectedExcels"></td>
+                <td>{{excel}}</td>
+            </tr>
+          </tbody>
+        </v-simple-table>
+        <v-card-actions class="d-flex justify-end">
+          <v-btn text depressed color="primary" @click="startTest()">시험시작</v-btn>
+        </v-card-actions>
+      </v-card>
     </div>
   </div>
 </template>
@@ -56,13 +77,14 @@ export default {
   data() {
     return {
       wordExcelList: [],
+      selectedExcels: [],
       isShowPathDialog: true,
       tempWordPath: '',
     };
   },
   computed: {
     wordPath() {
-      return this.$store.state;
+      return this.$store.state.excelPath;
     },
   },
   methods: {
@@ -70,10 +92,8 @@ export default {
       console.log(el);
       console.log(this.$refs.inputTest);
     },
-    testSheetjs() {},
     checkExcelPath() {
       if (this.wordPath === null) {
-        console.log('마운트 패스 없음!');
         return false;
       } else {
         return true;
@@ -97,9 +117,25 @@ export default {
       // ipcRenderer.sendSync("set-word-excel-path");
     },
     getWordExcelList() {
-      const files = ipcRenderer.sendSync("get-word-excel-list", this.wordPath);
-      this.wordExcelList = files;
-    }
+      const result = ipcRenderer.sendSync("get-word-excel-list", this.wordPath);
+      if(result.error) {
+        alert('폴더를 가져오는데 실패했습니다.');
+        this.isShowPathDialog = true;
+      } else {
+        this.wordExcelList = result.files;
+      }
+    },
+    addWordExcel(excel) {
+      const i = this.selectedExcels.indexOf(excel);
+      if (i > -1) {
+        this.selectedExcels.splice(i, 1);
+      } else {
+        this.selectedExcels.push(excel);
+      }
+    },
+    startTest() {
+
+    },
   }
 };
 </script>

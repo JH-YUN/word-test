@@ -76,6 +76,23 @@ app.on('ready', async () => {
   }
   createWindow();
 });
+
+// Exit cleanly on request from parent process in development mode.
+if (isDevelopment) {
+  if (process.platform === 'win32') {
+    process.on('message', (data) => {
+      if (data === 'graceful-exit') {
+        app.quit();
+      }
+    });
+  } else {
+    process.on('SIGTERM', () => {
+      app.quit();
+    });
+  }
+}
+
+/* 사용자 이벤트 */
 ipcMain.on('save-word-excel-path', (event, arg) => {
   const wordPath = arg;
   const result = {};
@@ -92,36 +109,20 @@ ipcMain.on('set-word-excel-path', (event, arg) => {
   event.returnValue = excelPath;
 });
 ipcMain.on('get-word-excel-list', (event, arg) => {
-  console.log(__static);
   const res = {};
   const extensions = ['.xls', '.xlsx'];
-  console.log(arg);
-  // fs.readdir(arg, 'utf8', (err, files) => {
-  //   if (err) {
-  //     res.error = true;
-  //     res.msg = err;
-  //     res.files = null;
-  //   } else {
-  //     const excels = files.filter((fileName) => extensions.indexOf(path.extname(fileName).toLowerCase()) > 0);
-  //     res.error = false;
-  //     res.files = excels;
-  //   }
-  //   event.returnValue = res;
-  // });
+  console.log(`엑셀 패스 : ${arg}`);
+  fs.readdir(arg, 'utf8', (err, files) => {
+    if (err) {
+      res.error = true;
+      res.msg = err;
+      res.files = null;
+    } else {
+      const excels = files.filter((file) => extensions.indexOf(path.extname(file).toLowerCase()) > 0);
+      res.error = false;
+      res.files = excels;
+    }
+    event.returnValue = res;
+    console.log(res);
+  });
 });
-
-
-// Exit cleanly on request from parent process in development mode.
-if (isDevelopment) {
-  if (process.platform === 'win32') {
-    process.on('message', (data) => {
-      if (data === 'graceful-exit') {
-        app.quit();
-      }
-    });
-  } else {
-    process.on('SIGTERM', () => {
-      app.quit();
-    });
-  }
-}
